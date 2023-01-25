@@ -2,7 +2,7 @@
 const playerO = 'O'
 const playerX = 'X'
 let turn = 1
-let gameActive = true
+let gameActive = false
 let easyMode = false
 let oMoves = []
 let xMoves = []
@@ -21,6 +21,9 @@ const winCombos = [
 
 // handles game active and click events
 function handleClick(event) {
+
+  console.log("clicked")
+
   if (cpu === false) {
     if (gameActive === true) {
       if (turn === 1 && event.target.innerText === '') {
@@ -38,19 +41,19 @@ function handleClick(event) {
       }
     }
   } else {
-    if (gameActive === true){
-      if (turn === 1 && event.target.innerText === ''){
-        event.target.innerText = 'X'
-        xMoves.push(event.target.id)
-        turn = 2
-        console.log(xMoves)
-        handleResult()
+    if (easyMode){
+      if (gameActive === true){
+        if (turn === 1 && event.target.innerText === ''){
+          event.target.innerText = 'X'
+          xMoves.push(event.target.id)
+          turn = 2
+          console.log(xMoves)
+          handleResult()
 
-        if(gameActive === true){
-          handleClick()
-        }
-      }else {
-        if (easyMode){
+          if(gameActive === true){
+            handleClick()
+          }
+        }else {
           let cpuChoice = Math.floor(Math.random() * 9);
 
           while (document.getElementById(cpuChoice.toString()).innerText !== ''){
@@ -63,7 +66,11 @@ function handleClick(event) {
             console.log("CPU Choice", oMoves)
             handleResult()
           }, 1000)
-        }else {
+        }
+      }
+    }else {
+      if (gameActive === true){
+        if (turn === 1){
           for (let i = 0; i < winCombos.length; i++){
             let zero = winCombos[i][0].toString()
             let one = winCombos[i][1].toString()
@@ -99,7 +106,7 @@ function handleClick(event) {
                 }
               }
               oMoves.push(cpuChoice)
-              turn = 1
+              turn = 2
               console.log("CPU Choice", oMoves)
               handleResult()
               return;
@@ -111,14 +118,24 @@ function handleClick(event) {
           while (document.getElementById(cpuChoice.toString()).innerText !== ''){
             cpuChoice = Math.floor(Math.random() * 9)
           }
-          setTimeout(() => {
-            document.getElementById(cpuChoice.toString()).innerText = 'O'
-            oMoves.push(cpuChoice.toString)
-            turn = 1
-            console.log("CPU Choice", oMoves)
-            handleResult()
-          }, 1000)
+          document.getElementById(cpuChoice.toString()).innerText = 'O'
+          oMoves.push(cpuChoice.toString)
+          turn = 2
+          console.log("CPU Choice", oMoves)
+          handleResult()
 
+        }else {
+          if (turn === 2 && event.target.innerText === ''){
+            event.target.innerText = 'X'
+            xMoves.push(event.target.id)
+            turn = 1
+            console.log(xMoves)
+            handleResult()
+
+            if(gameActive === true){
+              handleClick()
+            }
+          }
         }
       }
     }
@@ -151,7 +168,7 @@ function handleResult() {
     }
   })
 
-  if(xMoves.length === 5 && winner === ""){
+  if((xMoves.length === 5 || oMoves.length === 5) && winner === ""){
     winner = "Tie"
     gameActive = false
     console.log('winner:', winner)
@@ -213,11 +230,18 @@ let resetGame = () => {
   })
 
   turn = 1
-  gameActive = true
+  gameActive = false
   oMoves = []
   xMoves = []
   cpu = true
   winner = ''
+}
+
+let startGame = () => {
+  gameActive = true
+  if (!easyMode){
+    handleClick()
+  }
 }
 
 
@@ -228,4 +252,5 @@ document.querySelectorAll('.cell').forEach(function (cell) {
 
 document.getElementById('easy-button').addEventListener('click', toggleDifficultytoEasy)
 document.getElementById('hard-button').addEventListener('click', toggleDifficultytoHard)
+document.getElementById('start-button').addEventListener('click', startGame)
 
