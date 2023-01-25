@@ -3,8 +3,10 @@ const playerO = 'O'
 const playerX = 'X'
 let turn = 1
 let gameActive = true
-const oMoves = []
-const xMoves = []
+let easyMode = false
+let oMoves = []
+let xMoves = []
+let cpu = true
 let winner = ''
 const winCombos = [
   [0, 1, 2], // winning rows
@@ -17,27 +19,115 @@ const winCombos = [
   [2, 4, 6]
 ]
 
-// handles game activen and click events
+// handles game active and click events
 function handleClick(event) {
-  if (gameActive === true) {
-    if (turn === 1 && event.target.innerText === '') {
-      event.target.innerText = 'X'
-      xMoves.push(event.target.id)
-      turn = 2
-      console.log(xMoves)
-      handleResult()
-    } else if (turn === 2 && event.target.innerText === '') {
-      event.target.innerText = 'O'
-      oMoves.push(event.target.id)
-      console.log(oMoves)
-      turn = 1
-      handleResult()
+  if (cpu === false) {
+    if (gameActive === true) {
+      if (turn === 1 && event.target.innerText === '') {
+        event.target.innerText = 'X'
+        xMoves.push(event.target.id)
+        turn = 2
+        console.log(xMoves)
+        handleResult()
+      } else if (turn === 2 && event.target.innerText === '') {
+        event.target.innerText = 'O'
+        oMoves.push(event.target.id)
+        console.log(oMoves)
+        turn = 1
+        handleResult()
+      }
+    }
+  } else {
+    if (gameActive === true){
+      if (turn === 1 && event.target.innerText === ''){
+        event.target.innerText = 'X'
+        xMoves.push(event.target.id)
+        turn = 2
+        console.log(xMoves)
+        handleResult()
+
+        if(gameActive === true){
+          handleClick()
+        }
+      }else {
+        if (easyMode){
+          let cpuChoice = Math.floor(Math.random() * 9);
+
+          while (document.getElementById(cpuChoice.toString()).innerText !== ''){
+            cpuChoice = Math.floor(Math.random() * 9)
+          }
+          setTimeout(() => {
+            document.getElementById(cpuChoice.toString()).innerText = 'O'
+            oMoves.push(cpuChoice.toString)
+            turn = 1
+            console.log("CPU Choice", oMoves)
+            handleResult()
+          }, 1000)
+        }else {
+          for (let i = 0; i < winCombos.length; i++){
+            let zero = winCombos[i][0].toString()
+            let one = winCombos[i][1].toString()
+            let two = winCombos[i][2].toString()
+            let cpuChoice;
+            let runCPULogicResponse = runCPULogic(zero, one, two)
+            console.log(runCPULogicResponse)
+          
+            if (runCPULogicResponse.shouldRun){
+              if (zero === runCPULogicResponse.currentO){
+                if (document.getElementById(one).innerText === ""){
+                  document.getElementById(one).innerText = "O"
+                  cpuChoice = one
+                }else {
+                  document.getElementById(two).innerText = "O"
+                  cpuChoice = two
+                }
+              }else if (one === runCPULogicResponse.currentO){
+                if (document.getElementById(zero).innerText === ""){
+                  document.getElementById(zero).innerText = "O"
+                  cpuChoice = zero
+                }else {
+                  document.getElementById(two).innerText = "O"
+                  cpuChoice = two
+                }
+              }else{
+                if (document.getElementById(zero).innerText === ""){
+                  document.getElementById(zero).innerText = "O"
+                  cpuChoice = zero
+                }else {
+                  document.getElementById(one).innerText = "O"
+                  cpuChoice = one
+                }
+              }
+              oMoves.push(cpuChoice)
+              turn = 1
+              console.log("CPU Choice", oMoves)
+              handleResult()
+              return;
+            }
+          }
+
+          let cpuChoice = Math.floor(Math.random() * 9);
+
+          while (document.getElementById(cpuChoice.toString()).innerText !== ''){
+            cpuChoice = Math.floor(Math.random() * 9)
+          }
+          setTimeout(() => {
+            document.getElementById(cpuChoice.toString()).innerText = 'O'
+            oMoves.push(cpuChoice.toString)
+            turn = 1
+            console.log("CPU Choice", oMoves)
+            handleResult()
+          }, 1000)
+
+        }
+      }
     }
   }
 }
 
 // handles checking result and ending game
 function handleResult() {
+
   winCombos.forEach((combo) => {
     let zero = combo[0].toString()
     let one = combo[1].toString()
@@ -60,11 +150,82 @@ function handleResult() {
       console.log('winner:', winner)
     }
   })
+
+  if(xMoves.length === 5 && winner === ""){
+    winner = "Tie"
+    gameActive = false
+    console.log('winner:', winner)
+    return;
+  }
 }
+
+let runCPULogic = (zero, one, two) => {
+
+  let response = {
+    shouldRun: false,
+    currentO: ""
+  }
+
+  if (
+      document.getElementById(zero).innerText === "O" &&
+      (document.getElementById(one).innerText === "" || document.getElementById(one).innerText === "O") &&
+      (document.getElementById(two).innerText === "" || document.getElementById(two).innerText === "O")
+    )
+    {
+      response.shouldRun = true
+      response.currentO = zero
+
+    }else if (
+      document.getElementById(one).innerText === "O" && 
+      (document.getElementById(zero).innerText === "" || document.getElementById(zero).innerText === "O") &&
+      (document.getElementById(two).innerText === "" || document.getElementById(two).innerText === "O")
+    ){
+      response.shouldRun = true
+      response.currentO = one
+    }else if (
+      document.getElementById(two).innerText === "O" && 
+      (document.getElementById(zero).innerText === "" || document.getElementById(zero).innerText === "O") &&
+      (document.getElementById(one).innerText === "" || document.getElementById(one).innerText === "O")
+    ){
+      response.shouldRun = true
+      response.currentO = two
+    }
+
+    return response
+
+}
+
+let toggleDifficultytoHard = () => {
+  easyMode = false
+  resetGame()
+  console.log(easyMode)
+}
+
+let toggleDifficultytoEasy = () => {
+  easyMode = true
+  resetGame()
+  console.log(easyMode)
+}
+
+let resetGame = () => {
+  document.querySelectorAll('.cell').forEach((cell) => {
+    cell.innerHTML = ''
+  })
+
+  turn = 1
+  gameActive = true
+  oMoves = []
+  xMoves = []
+  cpu = true
+  winner = ''
+}
+
 
 // event listener
 document.querySelectorAll('.cell').forEach(function (cell) {
   cell.addEventListener('click', handleClick)
 })
 
-handleResult()
+document.getElementById('easy-button').addEventListener('click', toggleDifficultytoEasy)
+document.getElementById('hard-button').addEventListener('click', toggleDifficultytoHard)
+
