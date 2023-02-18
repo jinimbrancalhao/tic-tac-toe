@@ -6,7 +6,7 @@ let gameActive = false
 let easyMode = false
 let oMoves = []
 let xMoves = []
-let cpu = true
+let cpu = false
 let winner = ''
 const winCombos = [
   [0, 1, 2], // winning rows
@@ -215,12 +215,14 @@ let runCPULogic = (zero, one, two) => {
 let toggleDifficultytoHard = () => {
   easyMode = false
   resetGame()
+  cpu = true
   console.log(easyMode)
 }
 
 let toggleDifficultytoEasy = () => {
   easyMode = true
   resetGame()
+  cpu = true
   console.log(easyMode)
 }
 
@@ -233,15 +235,25 @@ let resetGame = () => {
   gameActive = false
   oMoves = []
   xMoves = []
-  cpu = true
+  cpu = false
   winner = ''
 }
 
 let startGame = () => {
   gameActive = true
-  if (!easyMode){
+  if (!easyMode && cpu){
     handleClick()
   }
+}
+
+let set1Player = () => {
+  cpu = false
+  resetGame()
+}
+
+let set2Player = () => {
+  resetGame()
+  cpu = true
 }
 
 
@@ -253,4 +265,6 @@ document.querySelectorAll('.cell').forEach(function (cell) {
 document.getElementById('easy-button').addEventListener('click', toggleDifficultytoEasy)
 document.getElementById('hard-button').addEventListener('click', toggleDifficultytoHard)
 document.getElementById('start-button').addEventListener('click', startGame)
+document.getElementById('1player-button').addEventListener('click', set1Player)
+document.getElementById('2player-button').addEventListener('click', set2Player)
 
